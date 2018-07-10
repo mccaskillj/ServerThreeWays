@@ -1,0 +1,131 @@
+--------------------------------------------------------------------------------
+README
+--------------------------------------------------------------------------------
+Jordan McCaskill
+1722645
+CMPT360
+Assignment 1
+--------------------------------------------------------------------------------
+
+----------------------------------------------------------------------
+http_server
+----------------------------------------------------------------------
+This is a description of the common requirements of the HTTP servers
+created for practicing of the concurrent prgramming methods.
+
+All servers share similar traits:
+1) A verbose output mode
+2) The ability to set the port of the server
+3) The ability to read from a config file if no flags are set
+4) Handling of SIGINT to exit gracefully
+5) Handling of SIGHUP to read from a config file during execution
+6) Ability to output to a log file
+7) Handling of 200, 400, 403 and 404 errors
+
+All three servers also use the following common files:
+
+-------------
+http_common.h
+-------------
+A header file which folds all function prototypes and global
+variables shared accross the servers.
+
+-------------
+http_common.c
+-------------
+code segment for all functions shared accross the servers.
+
+Implements the following functions:
+
+void handler() - Signal Handler
+void error() - Error generation function
+void startServer() - Starts the server on the specified port
+void respond() - Get the request and respond to it
+void respond_inner() - Used to decreased nesting in respond()
+void error_check() - Used to decreased nesting in respond_inner()
+FILE *parser() - Parse the config file
+void purge_extra() - Eliminate the extra characters at the beginning of
+	the lines of the config file
+void set_port() - Set the port and start the server
+
+-----------------------------------------------------------------------
+http_server_f
+-----------------------------------------------------------------------
+A concurrent web server which uses the fork() functionality. The server
+is able to handle a number of concurrent connections equal to the the
+value in the global variable CONNMAX-1. This means that to run 10
+concurrent connections, CONNMAX must be set to 11.
+
+It is implemented by having the forked process handle the respond function
+and leaves the main loop for the parent process.
+
+The following files are used:
+---------------
+http_server_f.h
+---------------
+The header file for any global variables and function prototypes unique
+to the forked web server.
+
+---------------
+http_server_f.c
+---------------
+The code segment for the forked web server.
+
+Implements the following functions:
+
+main() - The main function
+
+-----------------------------------------------------------------------
+http_server_t
+-----------------------------------------------------------------------
+A concurrent web server which uses the pthreads library to run. In it's
+current implementation it is able to handle up to 10 concurrent
+connections.
+
+It is implemented by having each thread run independantly and be able
+to handle one file descriptor by itself at a time until it is done and
+then cycle to the next one.
+
+The following files are used:
+---------------
+http_server_t.h
+---------------
+The header file for any global variables and function prototypes unique
+to the threaded web server.
+
+---------------
+http_server_t.c
+---------------
+The code segment for the threaded web server.
+
+Implements the following functions:
+
+main() - the main function
+void *thread_loop() - The function run by each thread
+void create() - create all of the pthreads
+void destroy() - destroy the threads
+
+-----------------------------------------------------------------------
+http_server_s
+-----------------------------------------------------------------------
+A concurrent web server which uses the select function in order to be
+able to run concurrently. It is done by having the select function update
+a set of currently active file descriptors and then processing them
+accordingly.
+
+The following files are used:
+---------------
+http_server_s.h
+---------------
+The header file for any global variables and function prototypes unique
+to the select web server.
+
+---------------
+http_server_s.c
+---------------
+The code segment for the select web server.
+
+Implements the following functions:
+
+main() - the main function
+void returnVal() - Used to reduce nesting in main()
